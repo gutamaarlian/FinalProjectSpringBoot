@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,4 +73,31 @@ public class AgencyController {
         return rs;
     }
 
+
+
+
+
+
+    //FOR ANDRO
+    @PostMapping("agency/createAgency")
+    public String createAgency(@RequestBody Agency agencyInp) throws JsonProcessingException {
+
+        Agency agency = new Agency();
+        agency.setName(agencyInp.getName());
+        agency.setDetails(agencyInp.getDetails());
+        agency.setUserId(agencyInp.getUserId());
+        agency.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        agencyDao.save(agency);
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(agency);
+        return rs;
+    }
+
+    @PostMapping("agency/getAgencyById")
+    public String getAgencyByIdAndro(String agencyId) throws JsonProcessingException {
+        Agency agency = agencyDao.findById(agencyId).get();
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(agency);
+        return rs;
+    }
 }

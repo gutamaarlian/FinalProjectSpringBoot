@@ -2,6 +2,7 @@ package com.bcaf.tama.FinalProject.Controller;
 
 import com.bcaf.tama.FinalProject.Entity.Agency;
 import com.bcaf.tama.FinalProject.Entity.User;
+import com.bcaf.tama.FinalProject.Request.JWToken;
 import com.bcaf.tama.FinalProject.Request.RegisterRequest;
 import com.bcaf.tama.FinalProject.Request.UpdateAgencyRequest;
 import com.bcaf.tama.FinalProject.Request.UpdateProfileRequest;
@@ -186,5 +187,74 @@ public class UserApiController {
         String rs = Obj.writeValueAsString(user);
         return rs;
     }
+
+    //FOR ANDRO
+
+
+    @PostMapping("user/createUser")
+    public String createUser(@RequestBody User userInp) throws JsonProcessingException {
+        User user = new User();
+        user.setFirstName(userInp.getFirstName());
+        user.setLastName(userInp.getLastName());
+        user.setEmail(userInp.getEmail());
+        user.setMobileNumber(userInp.getMobileNumber());
+        user.setRoleId(roleDao.findIdByRole("owner").getId());
+        user.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        user.setPassword(pass().encode(userInp.getPassword()));
+        userDao.save(user);
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(user);
+        return rs;
+    }
+
+    @PostMapping("user/login")
+    public String loginAndroid(String email,String password) throws JsonProcessingException{
+        User user = userDao.findEmailValidation(email);
+        String encoded = pass().encode(password);
+        if(pass().matches(password,user.getPassword())){
+            ObjectMapper obj= new ObjectMapper();
+            Agency agency=agencyDao.findAgencyByUserId(user.getId());
+            JWToken jwtoken = new JWToken();
+            jwtoken.setAgencyId(agency.getId());
+            jwtoken.setUserEmail(user.getEmail());
+            jwtoken.setUserId(user.getId());
+            jwtoken.setUserName(user.getFirstName()+" "+user.getLastName());
+            String iss = obj.writeValueAsString(jwtoken);
+            String JWT = new CreateJWT()
+                    .buildJWT(user.getId(),iss,"login",1000000);
+            String rs = obj.writeValueAsString(JWT);
+            return rs;
+        }
+        else{
+            return "error";
+        }
+    }
+
+    @PostMapping("user/checkEmailUserByUser")
+    public String checkEmailUser(@RequestBody User userParam) throws JsonProcessingException {
+        User user = userDao.findEmailValidation(userParam.getEmail());
+        if (user == null)
+            user = new User();
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(user);
+        return rs;
+    }
+
+    @PostMapping("user/getUserById")
+    public String getUserById(String userId) throws JsonProcessingException, InvalidKeySpecException, NoSuchAlgorithmException {
+        User user = userDao.findById(userId).get();
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(user);
+        return rs;
+    }
+
+
+
+
+
+
+
+
+
 
 }

@@ -95,4 +95,25 @@ public class BusApiController {
         String rs = Obj.writeValueAsString(listBus);
         return rs;
     }
+
+
+    //FOR ANDRO
+
+    @PostMapping("bus/getAllBusByAgencyId")
+    public String getAllBusByAgencyId(String agencyId) throws JsonProcessingException {
+        List<Bus> listBus = busDao.findAllBusByAgencyId(agencyId);
+        if (listBus == null)
+            listBus = new LinkedList<>();
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(listBus);
+        return rs;
+    }
+
+    @PostMapping("bus/getBusById")
+    public String getBusById(String busId) throws JsonProcessingException {
+        Bus bus = busDao.findById(busId).get();
+        ObjectMapper Obj = new ObjectMapper();
+        String rs = Obj.writeValueAsString(bus);
+        return rs;
+    }
 }
